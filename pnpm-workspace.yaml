@@ -1,0 +1,3 @@
+packages:
+  # 所有的项目都在packages文件夹下
+  - "packages/*"
