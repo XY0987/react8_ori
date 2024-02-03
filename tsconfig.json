@@ -16,6 +16,10 @@
 		"noUnusedParameters": true,
 		"noImplicitReturns": false,
 		"skipLibCheck": true,
-		"baseUrl": "./packages" //基础入口
+		"baseUrl": "./packages", //基础入口
+		"paths": {
+			// 每一个都有自己的hostConfig的实现，这里统一一下
+			"hostConfig": ["./react-reconciler/src/hostConfig.ts"]
+		}
 	}
 }
