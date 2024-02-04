@@ -44,11 +44,17 @@ function renderRoot(root: FiberRootNode) {
 			workLoop();
 			break;
 		} catch (error) {
-			console.warn('workLoop发送错误');
-
+			if (__DEV__) {
+				console.warn('workLoop发送错误');
+			}
 			workInProgress = null;
 		}
 	} while (true);
+	// 该树中包含了部分依赖标记
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
+	// wip finberNode树，树中的flags,执行具体的flags
+	// commitRoot(root);
 }
 
 // 执行调度

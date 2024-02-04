@@ -4,6 +4,8 @@ import fs from 'fs'
 // plugin
 import ts from 'rollup-plugin-typescript2'
 import cjs from '@rollup/plugin-commonjs'
+// 为开发环境增加__DEV__标识，方便Dev包打印更多信息
+import replace from '@rollup/plugin-replace'
 
 // 这个变量指向packages目录
 const pkgPath = path.resolve(__dirname, '../../packages')
@@ -29,6 +31,6 @@ export function getPackageJSON(pkgName) {
 }
 
 // 获取所有基础的plugin
-export function getBaseRollupPlugins({ typescript = {} } = {}) {
-    return [cjs(), ts(typescript)]
+export function getBaseRollupPlugins({ alias = { __DEV__: true }, typescript = {} } = {}) {
+    return [replace(alias), cjs(), ts(typescript)]
 }
