@@ -17,6 +17,8 @@ function prepareFreshStack(root: FiberRootNode) {
 在fiber中调度update
 */
 export function scheduleUpdateOnFiber(fiber: FiberNode) {
+	console.log('调度的fiber', fiber);
+
 	// 调度功能
 	// fiberRootNode
 	const root = markUpdateFromFiberToRoot(fiber);
@@ -56,6 +58,8 @@ function renderRoot(root: FiberRootNode) {
 	const finishedWork = root.current.alternate;
 	root.finishedWork = finishedWork;
 	// wip finberNode树，树中的flags,执行具体的flags
+	console.log(root);
+
 	commitRoot(root);
 }
 

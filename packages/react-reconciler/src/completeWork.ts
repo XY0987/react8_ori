@@ -21,11 +21,7 @@ export const completeWork = (wip: FiberNode) => {
 				//1. 构建DOM
 				const instance = createInstance(wip.type, newProps);
 				//2. 将DOM插入到DOM树种
-				try {
-					appendAllChildren(instance, wip);
-				} catch (error) {
-					console.log(error);
-				}
+				appendAllChildren(instance, wip);
 				wip.stateNode = instance;
 			}
 			bubbleProperties(wip);

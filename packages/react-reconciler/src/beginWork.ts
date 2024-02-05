@@ -4,7 +4,7 @@ import { UpdateQueue, processUpdateQueue } from './updateQueue';
 import { HostComponent, HostRoot, HostText } from './workTags';
 import { mountcileChildFibers, reconcileChildFibers } from './childFibers';
 
-// 递归中的递阶段
+// 递归中的递阶段(创建子fiber)
 export const beginWork = (wip: FiberNode) => {
 	// 比较、返回子fiberNode
 	switch (wip.tag) {

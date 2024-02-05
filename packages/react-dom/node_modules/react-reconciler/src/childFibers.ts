@@ -71,4 +71,6 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 }
 
 export const reconcileChildFibers = ChildReconciler(true);
+
+// 对节点进行标记处理
 export const mountcileChildFibers = ChildReconciler(false);
