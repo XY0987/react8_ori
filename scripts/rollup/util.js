@@ -31,6 +31,6 @@ export function getPackageJSON(pkgName) {
 }
 
 // 获取所有基础的plugin
-export function getBaseRollupPlugins({ alias = { __DEV__: true }, typescript = {} } = {}) {
+export function getBaseRollupPlugins({ alias = { __DEV__: true, preventAssignment: true }, typescript = {} } = {}) {
     return [replace(alias), cjs(), ts(typescript)]
 }
