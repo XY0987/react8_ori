@@ -4,6 +4,7 @@ import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
 import { HostText } from './workTags';
 import { Placement } from './fiberFlags';
 
+// shouldTrackEffects是否追踪副作用
 function ChildReconciler(shouldTrackEffects: boolean) {
 	function reconcileSingElement(
 		returnFiber: FiberNode,

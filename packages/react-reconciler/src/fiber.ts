@@ -109,7 +109,7 @@ export const createWorkInProgress = (
 
 	return wip;
 };
-
+// 根据ReactElement（jsx方法调用创建的）元素类型创建对应的fiber树
 export function createFiberFromElement(element: ReactElementType): FiberNode {
 	const { type, key, props } = element;
 	let fiberTag: WorkTag = FunctionComponent;
