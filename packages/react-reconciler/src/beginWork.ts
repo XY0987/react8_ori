@@ -58,6 +58,7 @@ function updateHostComponent(wip: FiberNode) {
 	return wip.child;
 }
 
+// 控制是更新还是挂载（这两个方法是标记对应节点的）
 function reconcileChildren(wip: FiberNode, children?: ReactElementType) {
 	const current = wip.alternate;
 	if (current !== null) {

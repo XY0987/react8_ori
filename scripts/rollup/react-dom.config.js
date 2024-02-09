@@ -3,7 +3,7 @@ import generatePackageJson from 'rollup-plugin-generate-package-json'
 
 import alias from '@rollup/plugin-alias'
 
-const { name, module } = getPackageJSON('react-dom')
+const { name, module, peerDependencies } = getPackageJSON('react-dom')
 // react-dom 包的路径
 const pkgPath = resolvePkgPath(name)
 
@@ -11,7 +11,7 @@ const pkgPath = resolvePkgPath(name)
 const pkgDistPath = resolvePkgPath(name, true)
 
 export default [
-    // react
+    // react-dom
     {
         input: `${pkgPath}/${module}`,
         output: [
@@ -26,6 +26,8 @@ export default [
                 format: 'umd'
             }
         ],
+        // react相对于react-dom是一个外部的包，不会打包进去
+        external: [...Object.keys(peerDependencies)],
         plugins: [
             ...getBaseRollupPlugins(),
             // 指定hostConfig指向
