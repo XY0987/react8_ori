@@ -29,6 +29,14 @@ const ReactElement = function (
 	return element;
 };
 
+export function isValidElement(object: any) {
+	return (
+		typeof object === 'object' &&
+		object !== null &&
+		object.$$typeof === REACT_ELEMENT_TYPE
+	);
+}
+
 // 实现JSX方法
 export const jsx = function (
 	type: ElementType,
@@ -64,11 +72,13 @@ export const jsx = function (
 	const maybeChildrenLenth = maybeChildren.length;
 	// 长度大于0，表示有多余的children
 	if (maybeChildrenLenth) {
-		// 如果只有一个children，直接赋值返回
-		props.children = maybeChildren[0];
-	} else {
-		// 有多个children
-		props.children = maybeChildren;
+		if (maybeChildrenLenth === 1) {
+			// 如果只有一个children，直接赋值返回
+			props.children = maybeChildren[0];
+		} else {
+			// 有多个children
+			props.children = maybeChildren;
+		}
 	}
 	return ReactElement(type, key, ref, props);
 };

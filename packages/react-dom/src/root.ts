@@ -7,11 +7,20 @@ import {
 } from 'react-reconciler/src/fiberReconciler';
 import { Container } from './hostConfig';
 
+// export function createRoot(container: Container) {
+// 	const root = createContainer(container);
+// 	return {
+// 		render(element: ReactElementType) {
+// 			return updateContainer(element, root);
+// 		}
+// 	};
+// }
+
 export function createRoot(container: Container) {
 	const root = createContainer(container);
 	return {
 		render(element: ReactElementType) {
-			updateContainer(element, root);
+			return updateContainer(element, root);
 		}
 	};
 }
