@@ -11,7 +11,12 @@ import {
 	HostRoot,
 	HostText
 } from './workTags';
-import { NoFlags } from './fiberFlags';
+import { NoFlags, Update } from './fiberFlags';
+
+// 标记更新函数
+function markUpdate(fiber: FiberNode) {
+	fiber.flgs |= Update;
+}
 
 export const completeWork = (wip: FiberNode) => {
 	// 递归中的归
@@ -35,6 +40,13 @@ export const completeWork = (wip: FiberNode) => {
 			// 构建离屏的dom树
 			if (current !== null && wip.stateNode) {
 				// update
+				// 更新之前的文本值
+				const oldText = current.memoizedProps.content;
+				const newText = newProps.content;
+				if (oldText !== newText) {
+					// 标记更新
+					markUpdate(wip);
+				}
 			} else {
 				//1. 构建DOM
 				const instance = createTextInstance(newProps.content);

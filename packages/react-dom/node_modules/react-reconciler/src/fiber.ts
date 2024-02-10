@@ -36,6 +36,7 @@ export class FiberNode {
 	subtreeFlags: Flags;
 
 	updateQueue: unknown;
+	deletions: FiberNode[] | null; //要删除的子节点
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		this.tag = tag;
@@ -62,8 +63,10 @@ export class FiberNode {
 		// 双缓冲对应的fiberNode树
 		this.alternate = null;
 
+		// 副作用
 		this.flgs = NoFlags;
 		this.subtreeFlags = NoFlags; //用于标记子树是否有标记
+		this.deletions = null;
 	}
 }
 
@@ -100,6 +103,7 @@ export const createWorkInProgress = (
 		// 清除副作用
 		wip.flgs = NoFlags;
 		wip.subtreeFlags = NoFlags;
+		wip.deletions = null;
 	}
 	wip.type = current.type;
 	wip.updateQueue = current.updateQueue;
