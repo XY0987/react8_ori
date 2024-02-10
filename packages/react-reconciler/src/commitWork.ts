@@ -79,22 +79,46 @@ const commitMutationEffectsOnFiber = (finishedWork: FiberNode) => {
 	}
 };
 
+function recordHostChildrenToDelete(
+	childrenToDelete: FiberNode[],
+	unmountFiber: FiberNode
+) {
+	// 1. 找到第一个Root host节点
+	let lastOne = childrenToDelete[childrenToDelete.length - 1];
+	if (!lastOne) {
+		childrenToDelete.push(unmountFiber);
+	} else {
+		// 不是第一个，把所有的兄弟节点都加入到对应数组中，之后统一删除（Fragement相当于一个组件，需要把里边的节点都删除）
+		let node = lastOne.sibling;
+		while (node !== null) {
+			if (unmountFiber === node) {
+				childrenToDelete.push(unmountFiber);
+			}
+			node = node.sibling;
+		}
+	}
+	// 2. 每找到一个host节点，判断下这个节点是不是 1 找到哪个节点的兄弟节点
+}
+
 // 递归处理，根据不同类型进行额外的处理
 function commitDeletion(childToDelete: FiberNode) {
-	let rootHostNode: FiberNode | null = null;
+	const rootChildrenToDelete: FiberNode[] = [];
 	// 递归子树
 	commitNestedComponent(childToDelete, (unmountFiber) => {
 		switch (unmountFiber.tag) {
 			case HostComponent:
-				if (rootHostNode === null) {
-					rootHostNode = unmountFiber;
-				}
+				// if (rootHostNode === null) {
+				// 	rootHostNode = unmountFiber;
+				// }
+				// 原本是一个节点，现在加入Fragment之后，可能是多个节点，需要都处理
+				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
 				// TODO: 解绑ref
 				return;
 			case HostText:
-				if (rootHostNode === null) {
-					rootHostNode = unmountFiber;
-				}
+				// if (rootHostNode === null) {
+				// 	rootHostNode = unmountFiber;
+				// }
+				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
 				return;
 			case FunctionComponent:
 				// TODO: useEffect unmount的处理
@@ -107,10 +131,12 @@ function commitDeletion(childToDelete: FiberNode) {
 		}
 	});
 	// 移除真实DOM
-	if (rootHostNode !== null) {
+	if (rootChildrenToDelete.length) {
 		const hostParent = getHostParent(childToDelete);
 		if (hostParent !== null) {
-			removeChild((rootHostNode as FiberNode).stateNode, hostParent);
+			rootChildrenToDelete.forEach((node) => {
+				removeChild(node.stateNode, hostParent);
+			});
 		}
 	}
 	// 删除之后重置标记
