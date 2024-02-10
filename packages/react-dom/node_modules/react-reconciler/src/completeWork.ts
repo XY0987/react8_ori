@@ -12,6 +12,7 @@ import {
 	HostText
 } from './workTags';
 import { NoFlags, Update } from './fiberFlags';
+import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
 
 // 标记更新函数
 function markUpdate(fiber: FiberNode) {
@@ -27,6 +28,9 @@ export const completeWork = (wip: FiberNode) => {
 			// 构建离屏的dom树
 			if (current !== null && wip.stateNode) {
 				// update
+				// 1. 判断props是否变化
+				// 2. 变了打一个Update 标记
+				updateFiberProps(wip.stateNode, newProps);
 			} else {
 				//1. 构建DOM
 				const instance = createInstance(wip.type, newProps);
