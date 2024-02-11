@@ -9,6 +9,7 @@ import {
 } from './updateQueue';
 import { ReactElementType } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './workLoop';
+import { requestUpdateLane } from './fiberLanes';
 
 // 调用ReactDOM.createRoot时会调用该函数,创建根节点，并连接相关节点
 export function createContainer(container: Container) {
@@ -24,13 +25,14 @@ export function updateContainer(
 	root: FiberRootNode
 ) {
 	const hostRootFiber = root.current;
+	const lane = requestUpdateLane();
 	// 首屏渲染(创建update)
-	const update = createUpdate<ReactElementType | null>(element);
+	const update = createUpdate<ReactElementType | null>(element, lane);
 	// 将创建的uodate添加到队列中
 	enqueueUpdate(
 		hostRootFiber.updateQueue as UpdateQueue<ReactElementType | null>,
 		update
 	);
-	scheduleUpdateOnFiber(hostRootFiber);
+	scheduleUpdateOnFiber(hostRootFiber, lane);
 	return element;
 }

@@ -7,6 +7,7 @@ import {
 } from './workTags';
 import { Flags, NoFlags } from './fiberFlags';
 import { Container } from 'hostConfig';
+import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
 
 /* 
 协调器的工作方式：对于同一个节点，比较其React Element与FiberNode生成子fibrtnode
@@ -79,12 +80,18 @@ export class FiberRootNode {
 	container: Container;
 	current: FiberNode;
 	finishedWork: FiberNode | null;
+	// 所有没有被消费的lane的集合
+	pendingLanes: Lanes;
+	// 本次更新消费的lane
+	finishedLane: Lane;
 	constructor(container: Container, hostRootFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRootFiber;
 		// 当前为HostComponent,指向自身
 		hostRootFiber.stateNode = this;
 		this.finishedWork = null;
+		this.pendingLanes = NoLanes;
+		this.finishedLane = NoLane;
 	}
 }
 
