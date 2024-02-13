@@ -1,9 +1,19 @@
 import { scheduleMicroTask } from 'hostConfig';
 import { beginWork } from './beginWork';
-import { commitMutationEffects } from './commitWork';
+import {
+	commitHookEffectListCreate,
+	commitHookEffectListDestroy,
+	commitHookEffectListUnmount,
+	commitMutationEffects
+} from './commitWork';
 import { completeWork } from './completeWork';
-import { FiberNode, FiberRootNode, createWorkInProgress } from './fiber';
-import { MutationMask, NoFlags } from './fiberFlags';
+import {
+	FiberNode,
+	FiberRootNode,
+	createWorkInProgress,
+	PendingPassiveEffects
+} from './fiber';
+import { MutationMask, NoFlags, PassiveMask } from './fiberFlags';
 import {
 	Lane,
 	NoLane,
@@ -15,10 +25,19 @@ import {
 import { flushSyncCallbacks, scheduleSyncCallback } from './syncTaskQueue';
 import { HostRoot } from './workTags';
 
+import {
+	unstable_scheduleCallback as scheduleCallback,
+	unstable_NormalPriority as NormalPriority
+} from 'scheduler';
+import { HookHasEffect, Passive } from './hookEffectTags';
+
 // 定义一个指针，指向当前正在工作的fiber树
 let workInProgress: FiberNode | null;
 // 本次更新的lane是什么
 let wipRootRenderLane: Lane = NoLane;
+
+// 定义一个变量，避免重复调用effect
+let rootDoesHasPassiveEffects: Boolean = false;
 
 // 用于初始化的操作
 function prepareFreshStack(root: FiberRootNode, lane: Lane) {
@@ -139,24 +158,64 @@ function commitRoot(root: FiberRootNode) {
 	// 移除已经完成的lane
 	markRootFinished(root, lane);
 
+	// 判断是否要执行effect
+	if (
+		(finishedWork.flags & PassiveMask) !== NoFlags ||
+		(finishedWork.subtreeFlags & PassiveMask) !== NoFlags
+	) {
+		// 防止多次触发调度时，多次执行该操作
+		if (!rootDoesHasPassiveEffects) {
+			rootDoesHasPassiveEffects = true;
+			// 调度副作用
+			scheduleCallback(NormalPriority, () => {
+				console.log('root.pendingPassiveEffects', root.pendingPassiveEffects);
+				// 执行副作用
+				flushPassiveEffects(root.pendingPassiveEffects);
+				return;
+			});
+		}
+	}
+
 	// 判断是否存在3个子阶段需要执行的操作
 	// 判断root flags root subtreeFlags
 	const subtreeHasEffect =
 		(finishedWork.subtreeFlags & MutationMask) !== NoFlags;
 
-	const rootHasEffect = (finishedWork.flgs & MutationMask) !== NoFlags;
+	const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
 
 	if (subtreeHasEffect || rootHasEffect) {
 		// beforeMutation阶段
 		// mutation阶段
 
-		commitMutationEffects(finishedWork);
+		commitMutationEffects(finishedWork, root);
 		root.current = finishedWork; //切换双缓冲树
-
 		// layout阶段
 	} else {
 		root.current = finishedWork;
 	}
+
+	rootDoesHasPassiveEffects = false;
+	ensureRootIsSchedule(root);
+}
+
+function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
+	console.log(pendingPassiveEffects);
+
+	// 先执行destroy回调
+	pendingPassiveEffects.unmount.forEach((effect) => {
+		commitHookEffectListUnmount(Passive, effect);
+	});
+	pendingPassiveEffects.unmount = [];
+
+	pendingPassiveEffects.update.forEach((effect) => {
+		commitHookEffectListDestroy(Passive | HookHasEffect, effect);
+	});
+	pendingPassiveEffects.update.forEach((effect) => {
+		commitHookEffectListCreate(Passive | HookHasEffect, effect);
+	});
+	pendingPassiveEffects.update = [];
+	// 防止执行依赖过程还有更新
+	flushSyncCallbacks();
 }
 
 // 执行调度(入口方法)

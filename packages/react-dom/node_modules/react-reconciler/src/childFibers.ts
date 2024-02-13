@@ -24,7 +24,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		if (deletions === null) {
 			returnFiber.deletions = [childToDelete];
 			// 未要删除的父节点添加删除标记
-			returnFiber.flgs |= ChildDeletion;
+			returnFiber.flags |= ChildDeletion;
 		} else {
 			deletions.push(childToDelete);
 		}
@@ -122,7 +122,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 	function placeSingleChild(fiber: FiberNode) {
 		// 性能优化，首屏渲染的情况
 		if (shouldTrackEffects && fiber.alternate === null) {
-			fiber.flgs |= Placement;
+			fiber.flags |= Placement;
 		}
 		return fiber;
 	}
@@ -185,7 +185,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 				 */
 				const oldIndex = current.index;
 				if (oldIndex < lastPlacedIndex) {
-					newFiber.flgs |= Placement;
+					newFiber.flags |= Placement;
 					continue;
 				} else {
 					// 不移动
@@ -193,7 +193,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 				}
 			} else {
 				// mount阶段
-				newFiber.flgs |= Placement;
+				newFiber.flags |= Placement;
 			}
 		}
 		// 4. 将Map中剩下的标记为删除

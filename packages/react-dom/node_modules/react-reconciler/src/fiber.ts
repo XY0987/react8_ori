@@ -8,6 +8,7 @@ import {
 import { Flags, NoFlags } from './fiberFlags';
 import { Container } from 'hostConfig';
 import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
+import { Effect } from './fiberHooks';
 
 /* 
 协调器的工作方式：对于同一个节点，比较其React Element与FiberNode生成子fibrtnode
@@ -38,7 +39,7 @@ export class FiberNode {
 	//两个FiberNode树切换的字段（current或workInProgress，用于切换两个树）
 	alternate: FiberNode | null;
 	// 保存对应的标记(删除、新增、更新...)
-	flgs: Flags;
+	flags: Flags;
 	subtreeFlags: Flags;
 
 	updateQueue: unknown;
@@ -70,10 +71,15 @@ export class FiberNode {
 		this.alternate = null;
 
 		// 副作用
-		this.flgs = NoFlags;
+		this.flags = NoFlags;
 		this.subtreeFlags = NoFlags; //用于标记子树是否有标记
 		this.deletions = null;
 	}
+}
+
+export interface PendingPassiveEffects {
+	unmount: Effect[];
+	update: Effect[];
 }
 
 export class FiberRootNode {
@@ -84,6 +90,7 @@ export class FiberRootNode {
 	pendingLanes: Lanes;
 	// 本次更新消费的lane
 	finishedLane: Lane;
+	pendingPassiveEffects: PendingPassiveEffects;
 	constructor(container: Container, hostRootFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRootFiber;
@@ -92,6 +99,10 @@ export class FiberRootNode {
 		this.finishedWork = null;
 		this.pendingLanes = NoLanes;
 		this.finishedLane = NoLane;
+		this.pendingPassiveEffects = {
+			unmount: [],
+			update: []
+		};
 	}
 }
 
@@ -113,7 +124,7 @@ export const createWorkInProgress = (
 		//update
 		wip.pendingProps = pendingProps;
 		// 清除副作用
-		wip.flgs = NoFlags;
+		wip.flags = NoFlags;
 		wip.subtreeFlags = NoFlags;
 		wip.deletions = null;
 	}

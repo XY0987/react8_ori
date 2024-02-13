@@ -17,7 +17,7 @@ import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
 
 // 标记更新函数
 function markUpdate(fiber: FiberNode) {
-	fiber.flgs |= Update;
+	fiber.flags |= Update;
 }
 
 export const completeWork = (wip: FiberNode) => {
@@ -108,7 +108,7 @@ function bubbleProperties(wip: FiberNode) {
 	let child = wip.child;
 	while (child !== null) {
 		subtreeFlags |= child.subtreeFlags;
-		subtreeFlags |= child.flgs;
+		subtreeFlags |= child.flags;
 
 		child.return = wip;
 		child = child.sibling;
