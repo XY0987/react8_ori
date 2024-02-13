@@ -37,7 +37,7 @@ let workInProgress: FiberNode | null;
 let wipRootRenderLane: Lane = NoLane;
 
 // 定义一个变量，避免重复调用effect
-let rootDoesHasPassiveEffects: Boolean = false;
+let rootDoesHasPassiveEffects: boolean = false;
 
 // 用于初始化的操作
 function prepareFreshStack(root: FiberRootNode, lane: Lane) {
