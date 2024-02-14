@@ -9,6 +9,7 @@ import { Flags, NoFlags } from './fiberFlags';
 import { Container } from 'hostConfig';
 import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
 import { Effect } from './fiberHooks';
+import { CallbackNode } from 'scheduler';
 
 /* 
 协调器的工作方式：对于同一个节点，比较其React Element与FiberNode生成子fibrtnode
@@ -91,6 +92,11 @@ export class FiberRootNode {
 	// 本次更新消费的lane
 	finishedLane: Lane;
 	pendingPassiveEffects: PendingPassiveEffects;
+
+	// 回调函数
+	callbackNode: CallbackNode | null;
+	// 优先级
+	callbackPriority: Lane;
 	constructor(container: Container, hostRootFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRootFiber;
@@ -99,6 +105,10 @@ export class FiberRootNode {
 		this.finishedWork = null;
 		this.pendingLanes = NoLanes;
 		this.finishedLane = NoLane;
+
+		this.callbackNode = null;
+		this.callbackPriority = NoLane;
+
 		this.pendingPassiveEffects = {
 			unmount: [],
 			update: []

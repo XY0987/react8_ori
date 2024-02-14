@@ -51,6 +51,7 @@ function updateHostRoot(wip: FiberNode, renderLane: Lane) {
 	const baseState = wip.memoizedState;
 	const updateQueue = wip.updateQueue as UpdateQueue<Element>;
 	const pending = updateQueue.shared.pending;
+	// 这里由于是首屏渲染，所以不可能被中断
 	updateQueue.shared.pending = null;
 	// 根据旧值获取到最新值
 	const { memoizedState } = processUpdateQueue(baseState, pending, renderLane);
