@@ -60,7 +60,7 @@ export class FiberNode {
 		this.child = null; //指向子节点的FiberNode
 		this.index = 0; //同级的可能有多个节点用于表示第几个
 
-		this.ref = null;
+		this.ref = { current: null };
 
 		// 作为工作单元
 		this.pendingProps = pendingProps; //刚开始的时候Props是什么
@@ -143,12 +143,13 @@ export const createWorkInProgress = (
 	wip.child = current.child;
 	wip.memoizedState = current.memoizedState;
 	wip.memoizedProps = current.memoizedProps;
+	wip.ref = current.ref;
 
 	return wip;
 };
 // 根据ReactElement（jsx方法调用创建的）元素类型创建对应的fiber树
 export function createFiberFromElement(element: ReactElementType): FiberNode {
-	const { type, key, props } = element;
+	const { type, key, props, ref } = element;
 	let fiberTag: WorkTag = FunctionComponent;
 	if (typeof type === 'string') {
 		fiberTag = HostComponent;
@@ -158,6 +159,7 @@ export function createFiberFromElement(element: ReactElementType): FiberNode {
 
 	const fiber = new FiberNode(fiberTag, props, key);
 	fiber.type = type;
+	fiber.ref = ref;
 	return fiber;
 }
 
